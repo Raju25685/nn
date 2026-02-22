@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>PrinterFix · PRO CRM · Full Edit + Recycle</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    :root {
+      --bg: #f2f8ff;
+      --surface: #ffffff;
+      --primary: #0c4f6c;
+      --primary-light: #ddebF6;
+      --text: #1c2e3c;
+      --text-light: #54728c;
+      --border: #cde0f0;
+      --shadow: 0 20px 40px -12px rgba(0,45,80,0.25);
+      --card-radius: 28px;
+      --sidebar-width: 260px;
+      --danger: #b0003a;
+    }
+    body.dark {
+      --bg: #121f2c;
+      --surface: #1e3345;
+      --primary: #4bb3dd;
+      --primary-light: #2c465e;
+      --text: #e3f0fd;
+      --text-light: #adc6e0;
+      --border: #2c475f;
+      --shadow: 0 20px 40px -12px #000000aa;
+      --danger: #ff8a9f;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.2s, color 0.2s;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--primary);
+      padding-left: 1rem;
+      letter-spacing: -0.5px;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .nav-item {
+      padding: 1rem 1.2rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-light);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .nav-item.active, .nav-item:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .main-content {
+      padding: 2rem 2rem 2rem 1.5rem;
+      overflow-y: auto;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .page-title { font-size: 2rem; font-weight: 700; }
+    .dark-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      display: flex;
+      gap: 8px;
+      box-shadow: var(--shadow);
+    }
+    .search-bar {
+      background: var(--surface);
+      border-radius: 60px;
+      padding: 0.5rem 1rem 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1 1 300px;
+      border: 1px solid var(--border);
+    }
+    .search-bar input {
+      border: none;
+      background: transparent;
+      padding: 0.7rem 0;
+      width: 100%;
+      outline: none;
+      color: var(--text);
+    }
+    .search-bar select {
+      border: none;
+      background: var(--primary-light);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: var(--text);
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--card-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .btn-sm { padding: 0.6rem 1.4rem; }
+    .list-container {
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+    }
+    .visit-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .visit-item:last-child { border-bottom: none; }
+    .visit-info {
+      flex: 2 1 300px;
+    }
+    .visit-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .icon-btn {
+      background: var(--primary-light);
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      color: var(--primary);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .danger-btn {
+      background: #ffe8f0;
+      color: var(--danger);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--surface);
+      border-radius: 44px;
+      max-width: 950px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 1.2rem;
+    }
+    .full-row { grid-column: span 2; }
+    label { font-weight: 600; font-size: 0.9rem; color: var(--text-light); margin-bottom: 4px; display: block; }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .photo-item {
+      position: relative;
+      width: 95px;
+      height: 95px;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 22px;
+      border: 3px solid var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .photo-item button {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #c04242;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .camera-btn {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 50px;
+      padding: 0.8rem 1.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .photo-section {
+      background: var(--primary-light);
+      border-radius: 30px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border: 2px dashed var(--primary);
+    }
+    .unlimited-notes {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--primary); color: white;
+      padding: 1rem 2rem; border-radius: 60px;
+      z-index: 2000; box-shadow: var(--shadow);
+    }
+    @media (max-width:720px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="logo">🖨️ PrinterFix</div>
+    <nav class="nav" id="nav">
+      <div class="nav-item active" data-page="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
+      <div class="nav-item" data-page="clients"><i class="fas fa-users"></i> Clients</div>
+      <div class="nav-item" data-page="recycle"><i class="fas fa-trash-alt"></i> Recycle Bin</div>
+    </nav>
+  </aside>
+  <main class="main-content" id="mainContent"></main>
+</div>
+<div class="modal" id="modal"><div class="modal-content" id="modalContent"></div></div>
+<script>
+  (function() {
+    const STORAGE_KEYS = { SERVICES: 'printerfix_services_pro', RECYCLE: 'printerfix_recycle' };
+    function uuid() { return crypto.randomUUID?.() || Date.now()+'-'+Math.random().toString(36); }
+
+    let services = [];
+    let recycleBin = [];
+
+    function loadAll() {
+      services = JSON.parse(localStorage.getItem(STORAGE_KEYS.SERVICES)) || [];
+      recycleBin = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECYCLE)) || [];
+      if (services.length === 0) seedSample();
+    }
+    function saveAll() { 
+      localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+      localStorage.setItem(STORAGE_KEYS.RECYCLE, JSON.stringify(recycleBin));
+    }
+
+    function seedSample() {
+      const today = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0,5);
+      services.push({
+        id: uuid(), date: today, startTime: currentTime, endTime: '',
+        clientName: 'Om Electronics', mobile: '9988776655', shop: 'Om TVS',
+        address: '15 MG Road', city: 'Bangalore', printerBrand: 'TVS', model: 'TVS 345',
+        serial: 'TVS998', warranty: 'Yes', complaint: 'paper jam', workDone: 'cleaned roller',
+        parts: 'roller', serviceCharge: 400, travelCost: 100, otherCost: 0,
+        total: 500, paymentStatus: 'Paid', paymentMode: 'Cash', nextVisit: '',
+        photos: ['https://picsum.photos/90/90?random=1'], location: null,
+        notes: 'Auto time captured',
+        createdAt: new Date().toISOString()
+      });
+      saveAll();
+    }
+
+    loadAll();
+    const main = document.getElementById('mainContent');
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    let currentPage = 'dashboard';
+    function setActive(page) { navItems.forEach(n => { n.classList.remove('active'); if (n.dataset.page === page) n.classList.add('active'); }); }
+    navItems.forEach(n => n.addEventListener('click', (e) => { currentPage = e.currentTarget.dataset.page; setActive(currentPage); renderPage(); }));
+
+    function renderPage() {
+      if (currentPage === 'dashboard') renderDashboard();
+      else if (currentPage === 'clients') renderClientsPage();
+      else if (currentPage === 'recycle') renderRecycleBin();
+    }
+
+    // ===== DASHBOARD with search + delete =====
+    function renderDashboard() {
+      main.innerHTML = `
+        <div class="top-bar">
+          <span class="page-title">Dashboard</span>
+          <div class="dark-toggle" id="darkToggle"><i class="fas fa-moon"></i> Dark</div>
+        </div>
+        <div class="search-bar">
+          <i class="fas fa-search" style="color:var(--primary)"></i>
+          <input type="text" id="dashboardSearch" placeholder="Search by client, city, model, or date (YYYY-MM-DD)">
+          <select id="searchFilter">
+            <option value="all">All fields</option>
+            <option value="client">Client</option>
+            <option value="city">City</option>
+            <option value="model">Model</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+        <div style="margin:1rem 0; display:flex; gap:1rem; flex-wrap:wrap;">
+          <button class="btn" id="addServiceBtn"><i class="fas fa-plus-circle"></i> New service call</button>
+        </div>
+        <div id="visitsContainer" class="list-container">Loading...</div>
+      `;
+
+      document.getElementById('darkToggle')?.addEventListener('click', ()=> document.body.classList.toggle('dark'));
+
+      function renderFilteredVisits() {
+        const searchTerm = document.getElementById('dashboardSearch')?.value.toLowerCase() || '';
+        const filter = document.getElementById('searchFilter')?.value || 'all';
+
+        let filtered = services.filter(job => {
+          if (!searchTerm) return true;
+          switch(filter) {
+            case 'client': return job.clientName?.toLowerCase().includes(searchTerm);
+            case 'city': return job.city?.toLowerCase().includes(searchTerm);
+            case 'model': return job.model?.toLowerCase().includes(searchTerm);
+            case 'date': return job.date?.includes(searchTerm);
+            default: 
+              return job.clientName?.toLowerCase().includes(searchTerm) ||
+                     job.city?.toLowerCase().includes(searchTerm) ||
+                     job.model?.toLowerCase().includes(searchTerm) ||
+                     job.date?.includes(searchTerm) ||
+                     job.printerBrand?.toLowerCase().includes(searchTerm) ||
+                     job.mobile?.includes(searchTerm) ||
+                     job.serial?.toLowerCase().includes(searchTerm);
+          }
+        });
+
+        let html = `<h3>📋 ${filtered.length} visits found</h3>`;
+        if (filtered.length === 0) html += '<p>No matches</p>';
+        else {
+          filtered.sort((a,b) => b.date.localeCompare(a.date)).forEach(job => {
+            html += `
+              <div class="visit-item">
+                <div class="visit-info">
+                  <b>${job.clientName}</b> · ${job.date} ${job.startTime || ''}<br>
+                  <span style="color:var(--text-light);">${job.printerBrand} ${job.model} | ${job.city} | ₹${job.total}</span>
+                </div>
+                <div class="visit-actions">
+                  <button class="icon-btn edit-job-btn" data-id="${job.id}"><i class="fas fa-edit"></i> Edit</button>
+                  <button class="icon-btn danger-btn delete-job-btn" data-id="${job.id}"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+              </div>
+            `;
+          });
+        }
+        document.getElementById('visitsContainer').innerHTML = html;
+
+        document.querySelectorAll('.edit-job-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let job = services.find(s => s.id === btn.dataset.id);
+            if (job) openJobModal(job);
+          });
+        });
+
+        document.querySelectorAll('.delete-job-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let jobId = btn.dataset.id;
+            let job = services.find(s => s.id === jobId);
+            if (job && confirm(`Delete job for ${job.clientName}? It will move to recycle bin.`)) {
+              services = services.filter(s => s.id !== jobId);
+              recycleBin.push({ ...job, deletedAt: new Date().toISOString() });
+              saveAll();
+              renderFilteredVisits();
+              showToast('Moved to recycle bin');
+            }
+          });
+        });
+      }
+
+      document.getElementById('dashboardSearch')?.addEventListener('input', renderFilteredVisits);
+      document.getElementById('searchFilter')?.addEventListener('change', renderFilteredVisits);
+      document.getElementById('addServiceBtn').addEventListener('click', ()=> openJobModal(null));
+      
+      renderFilteredVisits();
+    }
+
+    // ===== CLIENTS PAGE =====
+    function renderClientsPage() {
+      let uniqueNames = [...new Set(services.map(s => s.clientName).filter(Boolean))];
+      main.innerHTML = `
+        <div class="top-bar">
+          <span class="page-title">Clients</span>
+          <div style="background:var(--surface); border-radius:60px; padding:0.3rem 1rem; display:flex; gap:0.5rem;">
+            <i class="fas fa-search"></i><input type="text" id="searchClient" placeholder="search..." style="border:none; background:none; outline:none;">
+          </div>
+        </div>
+        <div class="list-container" id="clientList">
+          ${uniqueNames.map(n=>`
+            <div class="visit-item" style="justify-content:space-between;">
+              <span><i class="fas fa-user"></i> ${n}</span>
+              <div>
+                <button class="icon-btn view-client-btn" data-client="${n}"><i class="fas fa-eye"></i> View</button>
+                <button class="icon-btn danger-btn delete-client-btn" data-client="${n}"><i class="fas fa-trash-alt"></i> Delete all jobs</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      document.querySelectorAll('.view-client-btn').forEach(btn => {
+        btn.addEventListener('click', () => showClientDetail(btn.dataset.client));
+      });
+
+      document.querySelectorAll('.delete-client-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          let client = btn.dataset.client;
+          if (confirm(`Delete ALL jobs for ${client}? They will move to recycle bin.`)) {
+            let toDelete = services.filter(s => s.clientName === client);
+            recycleBin.push(...toDelete.map(j => ({ ...j, deletedAt: new Date().toISOString() })));
+            services = services.filter(s => s.clientName !== client);
+            saveAll();
+            renderClientsPage();
+            showToast(`${toDelete.length} jobs moved to recycle`);
+          }
+        });
+      });
+
+      document.getElementById('searchClient')?.addEventListener('input', (e)=>{
+        let term = e.target.value.toLowerCase();
+        let filtered = uniqueNames.filter(c => c.toLowerCase().includes(term));
+        document.getElementById('clientList').innerHTML = filtered.map(n=>`
+          <div class="visit-item">
+            <span>${n}</span>
+            <div>
+              <button class="icon-btn view-client-btn" data-client="${n}">View</button>
+              <button class="icon-btn danger-btn delete-client-btn" data-client="${n}">Delete</button>
+            </div>
+          </div>
+        `).join('');
+        attachClientHandlers();
+      });
+
+      function attachClientHandlers() {
+        document.querySelectorAll('.view-client-btn').forEach(btn => {
+          btn.addEventListener('click', () => showClientDetail(btn.dataset.client));
+        });
+        document.querySelectorAll('.delete-client-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            let client = btn.dataset.client;
+            if (confirm(`Delete ALL for ${client}?`)) {
+              let toDelete = services.filter(s => s.clientName === client);
+              recycleBin.push(...toDelete.map(j => ({ ...j, deletedAt: new Date().toISOString() })));
+              services = services.filter(s => s.clientName !== client);
+              saveAll();
+              renderClientsPage();
+              showToast('Moved to recycle');
+            }
+          });
+        });
+      }
+    }
+
+    // ===== RECYCLE BIN =====
+    function renderRecycleBin() {
+      main.innerHTML = `
+        <div class="top-bar">
+          <span class="page-title">🗑️ Recycle Bin</span>
+          <button class="btn-outline btn-sm" id="emptyBin"><i class="fas fa-trash"></i> Empty Bin</button>
+        </div>
+        <div class="list-container" id="recycleList">
+          ${recycleBin.length === 0 ? '<p>Bin is empty</p>' : ''}
+          ${recycleBin.map((job, idx) => `
+            <div class="visit-item">
+              <div>
+                <b>${job.clientName}</b> · ${job.date}<br>
+                <small>Deleted: ${new Date(job.deletedAt).toLocaleString()}</small>
+              </div>
+              <div class="visit-actions">
+                <button class="icon-btn restore-btn" data-index="${idx}"><i class="fas fa-undo"></i> Restore</button>
+                <button class="icon-btn danger-btn permanent-delete-btn" data-index="${idx}"><i class="fas fa-times"></i> Delete permanently</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      document.querySelectorAll('.restore-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          let idx = btn.dataset.index;
+          let restored = recycleBin.splice(idx, 1)[0];
+          delete restored.deletedAt;
+          services.push(restored);
+          saveAll();
+          renderRecycleBin();
+          showToast('Restored');
+        });
+      });
+
+      document.querySelectorAll('.permanent-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (confirm('Delete permanently?')) {
+            recycleBin.splice(btn.dataset.index, 1);
+            saveAll();
+            renderRecycleBin();
+            showToast('Deleted permanently');
+          }
+        });
+      });
+
+      document.getElementById('emptyBin')?.addEventListener('click', () => {
+        if (confirm('Empty recycle bin permanently?')) {
+          recycleBin = [];
+          saveAll();
+          renderRecycleBin();
+          showToast('Bin emptied');
+        }
+      });
+    }
+
+    // ===== CLIENT DETAIL =====
+    function showClientDetail(clientName) {
+      let jobs = services.filter(s => s.clientName === clientName);
+      main.innerHTML = `
+        <div class="top-bar">
+          <span class="page-title">👤 ${clientName}</span>
+          <button class="btn-outline btn-sm" id="backToClients"><i class="fas fa-arrow-left"></i> back</button>
+        </div>
+        <div class="cards-grid">
+          <div class="stat-card">Jobs: ${jobs.length}</div>
+          <div class="stat-card">Income: ₹${jobs.reduce((a,j)=>a+j.total,0)}</div>
+        </div>
+        <div class="list-container">
+          ${jobs.map(job => `
+            <div class="visit-item">
+              <div>${job.date} · ${job.printerBrand} ${job.model} · ₹${job.total}</div>
+              <div>
+                <button class="icon-btn edit-job-btn" data-id="${job.id}">Edit</button>
+                <button class="icon-btn danger-btn delete-job-btn" data-id="${job.id}">Delete</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      document.getElementById('backToClients').addEventListener('click', ()=>{ currentPage='clients'; renderClientsPage(); setActive('clients'); });
+      
+      document.querySelectorAll('.edit-job-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          let job = services.find(s => s.id === btn.dataset.id);
+          if (job) openJobModal(job);
+        });
+      });
+
+      document.querySelectorAll('.delete-job-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          let jobId = btn.dataset.id;
+          let job = services.find(s => s.id === jobId);
+          if (job && confirm(`Delete job for ${job.clientName}?`)) {
+            services = services.filter(s => s.id !== jobId);
+            recycleBin.push({ ...job, deletedAt: new Date().toISOString() });
+            saveAll();
+            showClientDetail(clientName);
+            showToast('Moved to recycle');
+          }
+        });
+      });
+    }
+
+    // ===== FULL JOB MODAL with all fields and photo support =====
+    function openJobModal(existingJob) {
+      const now = new Date();
+      const currentDate = now.toISOString().split('T')[0];
+      const currentTime = now.toTimeString().slice(0,5);
+
+      let job = existingJob || {
+        id: uuid(), date: currentDate, startTime: currentTime, endTime: '',
+        clientName: '', mobile: '', shop: '', address: '', city: '', printerBrand: 'TVS',
+        model: '', serial: '', warranty: 'Yes', complaint: '', workDone: '', parts: '',
+        serviceCharge: 0, travelCost: 0, otherCost: 0, total: 0,
+        paymentStatus: 'Unpaid', paymentMode: 'Cash', nextVisit: '', photos: [], location: null,
+        notes: ''
+      };
+
+      let photoPreviews = (job.photos || []).map(p => `
+        <div class="photo-item">
+          <img src="${p}" alt="preview">
+          <button type="button" onclick="removePhoto('${job.id}', '${p}')">✕</button>
+        </div>
+      `).join('');
+
+      modalContent.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>${existingJob ? '✏️ Edit job' : '➕ New job (auto time)'}</h2>
+          <span style="font-size:2.5rem; cursor:pointer;" onclick="document.getElementById('modal').classList.remove('active')">&times;</span>
+        </div>
+        <form id="jobForm">
+          <div class="form-grid">
+            <div><label>Date</label><input type="date" id="svcDate" value="${job.date}"></div>
+            <div><label>Start time (auto)</label><input type="time" id="startTime" value="${job.startTime}"></div>
+            <div><label>End time</label><input type="time" id="endTime" value="${job.endTime||''}"></div>
+            <div><label>Client name *</label><input id="clientName" value="${job.clientName||''}" required></div>
+            <div><label>Mobile</label><input id="mobile" value="${job.mobile||''}"></div>
+            <div><label>Shop</label><input id="shop" value="${job.shop||''}"></div>
+            <div><label>Address</label><input id="address" value="${job.address||''}"></div>
+            <div><label>City</label><input id="city" value="${job.city||''}"></div>
+            <div><label>Printer Brand</label>
+              <select id="printerBrand">
+                <option ${job.printerBrand==='TVS'?'selected':''}>TVS</option>
+                <option ${job.printerBrand==='Brother'?'selected':''}>Brother</option>
+                <option ${job.printerBrand==='HP'?'selected':''}>HP</option>
+                <option ${job.printerBrand==='Canon'?'selected':''}>Canon</option>
+                <option ${job.printerBrand==='Epson'?'selected':''}>Epson</option>
+                <option ${job.printerBrand==='Other'?'selected':''}>Other</option>
+              </select>
+            </div>
+            <div><label>Model</label><input id="model" value="${job.model||''}"></div>
+            <div><label>Serial No.</label><input id="serial" value="${job.serial||''}"></div>
+            <div><label>Warranty</label>
+              <select id="warranty">
+                <option ${job.warranty==='Yes'?'selected':''}>Yes</option>
+                <option ${job.warranty==='No'?'selected':''}>No</option>
+              </select>
+            </div>
+            <div><label>Complaint</label><textarea id="complaint" rows="2">${job.complaint||''}</textarea></div>
+            <div><label>Work done</label><textarea id="workDone" rows="2">${job.workDone||''}</textarea></div>
+            <div><label>Parts used</label><input id="parts" value="${job.parts||''}"></div>
+            <div><label>Service charge (₹)</label><input type="number" id="serviceCharge" value="${job.serviceCharge||0}" oninput="calcTotal()"></div>
+            <div><label>Travel cost (₹)</label><input type="number" id="travelCost" value="${job.travelCost||0}" oninput="calcTotal()"></div>
+            <div><label>Other cost (₹)</label><input type="number" id="otherCost" value="${job.otherCost||0}" oninput="calcTotal()"></div>
+            <div><label>Total (₹)</label><input type="number" id="totalAmount" value="${job.total||0}" readonly></div>
+            <div><label>Payment status</label>
+              <select id="paymentStatus">
+                <option ${job.paymentStatus==='Paid'?'selected':''}>Paid</option>
+                <option ${job.paymentStatus==='Unpaid'?'selected':''}>Unpaid</option>
+                <option ${job.paymentStatus==='Partial'?'selected':''}>Partial</option>
+              </select>
+            </div>
+            <div><label>Payment mode</label>
+              <select id="paymentMode">
+                <option ${job.paymentMode==='Cash'?'selected':''}>Cash</option>
+                <option ${job.paymentMode==='UPI'?'selected':''}>UPI</option>
+                <option ${job.paymentMode==='Card'?'selected':''}>Card</option>
+                <option ${job.paymentMode==='Bank Transfer'?'selected':''}>Bank Transfer</option>
+              </select>
+            </div>
+            <div><label>Next visit date</label><input type="date" id="nextVisit" value="${job.nextVisit||''}"></div>
+          </div>
+
+          <!-- PHOTO SECTION -->
+          <div class="photo-section">
+            <label style="font-size:1.1rem;"><i class="fas fa-camera-retro"></i> Photos</label>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1rem 0;">
+              <span class="camera-btn" id="cameraLaunch"><i class="fas fa-camera"></i> Take photo</span>
+              <span class="camera-btn" id="fileLaunch"><i class="fas fa-images"></i> Upload from gallery</span>
+            </div>
+            <div class="photo-grid" id="modalPhotoPreview">
+              ${photoPreviews}
+            </div>
+            <input type="file" id="hiddenFileInput" accept="image/*" multiple style="display:none;">
+          </div>
+
+          <!-- NOTES -->
+          <div style="margin: 1.5rem 0;">
+            <label><i class="fas fa-sticky-note"></i> Notes (unlimited)</label>
+            <textarea class="unlimited-notes" id="notesField">${job.notes||''}</textarea>
+          </div>
+
+          <button type="submit" class="btn">💾 Save job</button>
+        </form>
+      `;
+
+      modal.classList.add('active');
+
+      // Calculate total
+      window.calcTotal = function() {
+        let sc = parseFloat(document.getElementById('serviceCharge')?.value) || 0;
+        let tc = parseFloat(document.getElementById('travelCost')?.value) || 0;
+        let oc = parseFloat(document.getElementById('otherCost')?.value) || 0;
+        document.getElementById('totalAmount').value = sc + tc + oc;
+      };
+
+      // Photo handling
+      const fileInput = document.getElementById('hiddenFileInput');
+      const previewDiv = document.getElementById('modalPhotoPreview');
+
+      document.getElementById('cameraLaunch')?.addEventListener('click', ()=>{
+        fileInput.setAttribute('capture', 'environment');
+        fileInput.click();
+      });
+
+      document.getElementById('fileLaunch')?.addEventListener('click', ()=>{
+        fileInput.removeAttribute('capture');
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function(e) {
+        let files = Array.from(e.target.files);
+        files.forEach(file => {
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              let imgDiv = document.createElement('div');
+              imgDiv.className = 'photo-item';
+              imgDiv.innerHTML = `<img src="${ev.target.result}" alt="snap">`;
+              previewDiv.appendChild(imgDiv);
+              
+              // Store for later
+              if (!job.photos) job.photos = [];
+              job.photos.push(ev.target.result);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+        fileInput.value = '';
+      });
+
+      // Remove photo function
+      window.removePhoto = function(jobId, photoSrc) {
+        if (job.photos) {
+          job.photos = job.photos.filter(p => p !== photoSrc);
+          let imgDiv = Array.from(previewDiv.children).find(
+            div => div.querySelector('img')?.src === photoSrc
+          );
+          if (imgDiv) imgDiv.remove();
+        }
+      };
+
+      // Form submit
+      document.getElementById('jobForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Collect all photos from preview
+        let finalPhotos = [];
+        document.querySelectorAll('#modalPhotoPreview .photo-item img').forEach(img => {
+          finalPhotos.push(img.src);
+        });
+
+        let updated = {
+          id: job.id,
+          date: document.getElementById('svcDate').value,
+          startTime: document.getElementById('startTime').value,
+          endTime: document.getElementById('endTime').value,
+          clientName: document.getElementById('clientName').value,
+          mobile: document.getElementById('mobile').value,
+          shop: document.getElementById('shop').value,
+          address: document.getElementById('address').value,
+          city: document.getElementById('city').value,
+          printerBrand: document.getElementById('printerBrand').value,
+          model: document.getElementById('model').value,
+          serial: document.getElementById('serial').value,
+          warranty: document.getElementById('warranty').value,
+          complaint: document.getElementById('complaint').value,
+          workDone: document.getElementById('workDone').value,
+          parts: document.getElementById('parts').value,
+          serviceCharge: parseFloat(document.getElementById('serviceCharge').value) || 0,
+          travelCost: parseFloat(document.getElementById('travelCost').value) || 0,
+          otherCost: parseFloat(document.getElementById('otherCost').value) || 0,
+          total: parseFloat(document.getElementById('totalAmount').value) || 0,
+          paymentStatus: document.getElementById('paymentStatus').value,
+          paymentMode: document.getElementById('paymentMode').value,
+          nextVisit: document.getElementById('nextVisit').value,
+          photos: finalPhotos,
+          notes: document.getElementById('notesField').value,
+          createdAt: existingJob ? existingJob.createdAt : new Date().toISOString()
+        };
+
+        if (existingJob) {
+          let idx = services.findIndex(s => s.id === job.id);
+          if (idx !== -1) services[idx] = updated;
+        } else {
+          services.push(updated);
+        }
+        saveAll();
+        modal.classList.remove('active');
+        showToast('Job saved with ' + finalPhotos.length + ' photos');
+        renderPage();
+      });
+    }
+
+    function showToast(m) { 
+      let t = document.createElement('div'); 
+      t.className = 'toast'; 
+      t.innerText = m; 
+      document.body.appendChild(t); 
+      setTimeout(() => t.remove(), 2000); 
+    }
+
+    renderPage();
+    setActive('dashboard');
+
+    // Close modal on outside click
+    window.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+  })();
+</script>
+</body>
+</html>
